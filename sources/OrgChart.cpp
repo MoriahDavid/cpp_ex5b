@@ -19,12 +19,12 @@ namespace ariel{
         this->p = root;
         this->q = queue<Person*>();
 
-        if(root != nullptr){
+        if(root != nullptr){ // for end iterator == nullptr
             q.push(root);
         }
     }
 
-    // Operator == : checks if the iterators are of the same type
+    // Operator == : checks if the iterators are point to same Person
     bool OrgChart::iterator_level_order::operator==(const iterator_level_order& it) const{
         return this->p == it.p;
     }
@@ -34,15 +34,15 @@ namespace ariel{
         return !(this->operator==(it));
     }
 
-    // Go to the next person (after the curr iter possition)
+    // Iterator go to the next person (after the curr iter possition)
     void OrgChart::iterator_level_order::next(){
         if(!q.empty()){ // the queue not empty
             Person* front = q.front(); // take the front person
             for(size_t i = 0; i < front->person_subs.size(); i++){
                 q.push(&front->person_subs[i]); //push all person's child to the queue
             }
-            q.pop(); // take the front son
-            if(q.empty()){
+            q.pop(); // take the front person
+            if(q.empty()){ // no more Persons
                 p = nullptr;
             }
             else{
@@ -50,7 +50,7 @@ namespace ariel{
             }
         }
         else{
-            p = nullptr; // there is no more sons to person
+            p = nullptr; // there is no more persons
         }
     } 
 
@@ -62,7 +62,7 @@ namespace ariel{
 
     // Operator iterator++: return the current person and go to next
     OrgChart::iterator_level_order OrgChart::iterator_level_order::operator++(int){ //iterator++
-        iterator_level_order temp= *this;
+        iterator_level_order temp = *this;
         this->next();
 		return temp;
     }
@@ -87,7 +87,7 @@ namespace ariel{
         this->vec = vector<Person*>();
 
         if(root == nullptr){
-            this->index = -1;
+            this->index = -1; // mark that the iterator is empty
         }
         else{
             this->create_vec_reverse_ord(root);
@@ -95,7 +95,7 @@ namespace ariel{
         }
     }
 
-    // Operator == : checks if the iterators are of the same type
+    // Operator == : checks if the iterators are point to same Person
     bool OrgChart::iterator_reverse_order::operator==(const iterator_reverse_order &it) const{
         return this->index == it.index;
     }
@@ -138,6 +138,22 @@ namespace ariel{
         return &this->vec[(size_t)this->index]->name;
     }
 
+    // Func for reverse order - create vector for OrgChart with its people.
+    void OrgChart::iterator_reverse_order::create_vec_reverse_ord(Person* root){
+        queue<Person*> q;
+        q.push(root);
+        while(!q.empty()){ // there is persons in q
+            Person* front = q.front();
+            q.pop();
+            this->vec.insert(this->vec.begin(), front); // Enter to the begin of the vector
+            if(!front->person_subs.empty()){ //if there is childs to front
+                for(int i = (int)front->person_subs.size()-1; i >= 0; i--){ // do reverse to the vector
+                    q.push(&front->person_subs[(size_t) i]);
+                }
+            }
+        }
+    }
+
 
 
 
@@ -147,13 +163,13 @@ namespace ariel{
     OrgChart::iterator_preorder::iterator_preorder(Person* root){
         this->stk = stack<Person*>{};
 
-        this->p = root;
-        if(root != nullptr){
+        this->p = root; // p is current iter person
+        if(root != nullptr){ // end iterator need to be nullptr
             stk.push(root);
         }
     }    
 
-    // Operator == : checks if the iterators are of the same type
+    // Operator == : checks if the iterators are point to same Person
     bool OrgChart::iterator_preorder::operator==(const iterator_preorder &it) const{
         return this->p == it.p;
     }
@@ -165,22 +181,22 @@ namespace ariel{
 
     // Go to the next person (after the curr iter possition)
     void OrgChart::iterator_preorder::next(){
-        if(!this->stk.empty()){ // the queue not empty
+        if(!this->stk.empty()){ // the queue has people
             Person* top = this->p;
             this->stk.pop();
-            if(!top->person_subs.empty()){
+            if(!top->person_subs.empty()){ // p has childs
                 for(int i = (int)top->person_subs.size()-1; i > -1; i--){
-                    this->stk.push(&top->person_subs[(size_t)i]);
+                    this->stk.push(&top->person_subs[(size_t)i]); // push childs in reverse (from end to start)
                 }
             }
             if(this->stk.empty()){
                 this->p = nullptr;
             }
             else{
-                this->p = this->stk.top();
+                this->p = this->stk.top(); // choose the curr iterator ("first child of top")
             }
         }
-        else{
+        else{ // no people in stack
             this->p = nullptr;
         }
     }
@@ -208,10 +224,29 @@ namespace ariel{
         return &p->name;
     }
 
-
+    // OrgChart constructor
     OrgChart::OrgChart(){
         this->org_is_empty = true;
         this->root = Person();
+    }
+
+    // Copy constractor - create new obj
+    OrgChart::OrgChart(const OrgChart& other){
+        this->org_is_empty = other.org_is_empty;
+        this->root = Person(other.root);
+    }
+    OrgChart::~OrgChart(){
+    }
+
+    // put in 'this' the other values
+    OrgChart& OrgChart::operator=(const OrgChart& other){
+        if(this==&other){
+            return *this;
+        }
+        // Change the obj, not create new one
+        this->org_is_empty = other.org_is_empty;
+        this->root = Person(other.root);
+        return *this;
     }
 
     OrgChart::iterator_level_order OrgChart::begin(){
@@ -270,6 +305,8 @@ namespace ariel{
         return iterator_preorder(nullptr);
     }
 
+    // OrgChart //
+
     // Add to OrgChart root by the person name and return the Orgchart
     OrgChart& OrgChart::add_root(const string& s){
         if(s.empty()){
@@ -296,7 +333,7 @@ namespace ariel{
         return *this;
     }
 
-    // Find person in OrgChart by his name and return the person pointer
+    // Find person in OrgChart by his name and return the person pointer - recursive
     Person* OrgChart::find_person(Person* root, const string& name){
 
         if(root->name == name){
@@ -304,17 +341,17 @@ namespace ariel{
         }
         for(size_t i = 0; i < root->person_subs.size(); i++){
             Person* result = find_person(&root->person_subs[i], name);
-            if(result != nullptr){
+            if(result != nullptr){ // find the person 
                 return result;
             }
         }   
         return nullptr;
     }
 
-    // Create string of the OrgChart
+    // Create string of the OrgChart - recursive
     void print_org_chart(ostream& os, const string& prefix, const Person* p, bool last_bro){
         if(p != nullptr){
-            os << prefix;
+            os << prefix; // ""
             if(last_bro){
                 os << "└─";
             }
@@ -329,13 +366,13 @@ namespace ariel{
             os << endl;
             string prefix_add;
             if(last_bro){
-                prefix_add = string(p->name.size()+2, ' ');
+                prefix_add = string(p->name.size()+2, ' '); //for symmetry
             }
             else{
-                prefix_add = "│" + string(p->name.size()+1, ' ');// + string(' ',p->name.size());
+                prefix_add = "│" + string(p->name.size()+1, ' ');
             }
             for(size_t i=0; i<p->person_subs.size(); i++){
-                bool l = (i == p->person_subs.size()-1);
+                bool l = (i == p->person_subs.size()-1); // if its the last bro
 
                 print_org_chart(os, prefix + prefix_add, &p->person_subs[i], l);
             }
@@ -344,24 +381,8 @@ namespace ariel{
 
     // Print the OrgChart
     ostream& operator<<(ostream& os, const OrgChart& org){
-        print_org_chart(os, "", &org.root, true);
+        print_org_chart(os, "", &org.root, true); // stream, prefix, root, its_last_bro
         return os;
     }
-
-    // Func for reverse order - create vector for OrgChart with its people.
-    void OrgChart::iterator_reverse_order::create_vec_reverse_ord(Person* root){
-        queue<Person*> q;
-        q.push(root);
-        while(!q.empty()){
-            Person* front = q.front();
-            q.pop();
-            this->vec.insert(this->vec.begin(), front);
-            if(!front->person_subs.empty()){
-                for(int i = (int)front->person_subs.size()-1; i >= 0; i--){ // do reverse to the vector
-                    q.push(&front->person_subs[(size_t) i]);
-                }
-            }
-        }
-    }
-
 }
+

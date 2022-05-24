@@ -14,8 +14,8 @@ namespace ariel{
             Person root;
             bool org_is_empty;
             Person* find_person(Person* root, const string& name);
-        public:
 
+        public:
             class iterator_level_order{
                 private:
                     queue<Person*> q;
@@ -81,6 +81,13 @@ namespace ariel{
             OrgChart& add_sub(const string& p, const string& subp);
 
             OrgChart();
+            OrgChart(const OrgChart& other);
+            ~OrgChart();
+            
+            OrgChart& operator=(const OrgChart& other);
+            OrgChart& operator=(OrgChart&& other) = default;
+            OrgChart(OrgChart&) = default;
+            OrgChart(OrgChart&&) = default;
 
             friend ostream& operator<<(ostream& os, const OrgChart& org); //friend in order to relate to the class
     };

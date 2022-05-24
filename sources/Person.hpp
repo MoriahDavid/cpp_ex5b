@@ -13,8 +13,16 @@ namespace ariel{
 
             vector<Person> person_subs;
 
-            Person(const string& name);
             Person();
+            Person(const string& name);
+            Person(const Person& other);
+            ~Person();
+
+            Person& operator=(const Person& other);
+            Person& operator=(Person&& other) = default;
+            Person(Person&) = default;
+            Person(Person&&) = default;
+
 
             // Add son - p to this person
             void add_sub(const Person& sub);
