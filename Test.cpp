@@ -116,4 +116,5 @@ TEST_CASE("bad inputs"){
     CHECK_THROWS(organization.add_sub("1.2", "1.2.1")); // Father 1.2 dont exist
     CHECK_THROWS(organization.add_sub("4", "1.3")); // Father dont exist in the OrgChart
 
-}    
+}   
+ 

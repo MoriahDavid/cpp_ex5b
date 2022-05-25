@@ -83,7 +83,7 @@ namespace ariel{
             OrgChart();
             OrgChart(const OrgChart& other);
             ~OrgChart();
-            
+
             OrgChart& operator=(const OrgChart& other);
             OrgChart& operator=(OrgChart&& other) = default;
             OrgChart(OrgChart&) = default;
@@ -91,6 +91,5 @@ namespace ariel{
 
             friend ostream& operator<<(ostream& os, const OrgChart& org); //friend in order to relate to the class
     };
-
 
 }   

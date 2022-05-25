@@ -30,3 +30,5 @@ namespace ariel{
             friend ostream& operator<<(ostream& os, const Person& p);
     };
 }
+
+
